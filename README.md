@@ -1,2 +1,3 @@
 # Cost_2_Mine
-generate a csv of mining profit from cost of KWhs scraped
+small python project that aims to generate a csv of mining profit via scraping KWhs tarrif and mining progress
+ - `N.B. I am writing this for my specific setup, Bulb energy supplier and HiveOS mining` 
