@@ -15,3 +15,8 @@ hiveos_api_secret_key = ""
 # ticker info
 ticker_buy = 'DOGE' #left side of ticker symbol
 ticker_sell = 'GBP' #rightside of ticker symbol
+
+# hive os login
+HiveOS_username = ""
+HiveOS_password = ""
+access_token    = "" # generate by going into account settings in HiveOS
