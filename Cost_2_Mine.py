@@ -1,5 +1,7 @@
-
 import csv
+from config import *
+
+############################################################
 
 def print_html(html_str):
    """
@@ -9,8 +11,12 @@ def print_html(html_str):
    print(BeautifulSoup(html_str, 'html.parser').prettify())
 
 
-def scrape_kWhs_from_Bulb():
+############################################################
+
+def scrape_kWhs_from_Bulb(post_code):
     """
+    TODO
+    scrapes the current price er kWH from the Bulb webpages tarrif, with selected options
     """
     from selenium import webdriver
     from selenium.webdriver.firefox.options import Options
@@ -19,7 +25,6 @@ def scrape_kWhs_from_Bulb():
     import json
 
     # inputs
-    post_code = "OL7 9LRx"
     pp_text = "By Direct Debit or other regular payment method"
 
     ff_opts = Options()
@@ -39,41 +44,50 @@ def scrape_kWhs_from_Bulb():
     print_html(pay_plan.get_attribute('innerHTML'))
     pay_plan.select_by_visible_text('pp_text')
 
+############################################################
+
 def create_empty_csv(field_names):
     """
+    will create an empty csv with headers from inputted list
     """
-    with open('Mining_Balance_Sheet.csv', 'w') as csvfile:
+    with open(name_of_csv, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
         writer.writeheader()
+        print(field_names)
+
+############################################################
 
 def append_to_csv(entry):
     """
+    appends the data entry to a csv
+    if it cant find csv it creates one
     """
     field_names = list(entry.keys())
 
     try:
-        f = open("Mining_Balance_Sheet.csv")
-        # Do something with the file
-
-        # Open your CSV file in append mode
-        # Create a file object for this file
-        with open('Mining_Balance_Sheet.csv', 'a') as f_object:
-              
-            # Pass the file object and a list 
-            # of column names to DictWriter()
-            # You will get a object of DictWriter
+        with open(name_of_csv, 'a') as f_object:
             dictwriter_object = csv.DictWriter(f_object, fieldnames=field_names)
-          
-            #Pass the dictionary as an argument to the Writerow()
             dictwriter_object.writerow(entry)
-          
-            #Close the file object
+            print(list(entry.values()))
             f_object.close()
 
     except IOError:
-        print("File not accessible")
+        print("File not accessible/found")
         create_empty_csv(field_names)
         append_to_csv()
 
-    finally:
-        f.close()
+###########################################################
+
+def get_live_price(ticker):
+    """
+    returns live ticker price from binance api in form of a dictionary
+    with keys [symbol,price]
+    """
+    bin_api_url ="https://api.binance.com/api/v1/ticker/price?symbol={}".format(ticker)
+
+    import requests
+    import json
+    response = json.loads(requests.get(bin_api_url).text)
+    return response
+
+############################################################
