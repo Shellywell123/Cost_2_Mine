@@ -2,7 +2,7 @@ import csv
 import json
 import requests
 import statistics
-
+from config import *
 import _bulbql as bulbql
 
 ############################################################
@@ -19,6 +19,16 @@ def print_html(html_str):
 
 ############################################################
 
+def get_live_kWhs_from_Bulb():
+    """
+    scrapes the current GBP per kWH from the Bulb webpages tarrif, with selected options
+    """
+    resp = makequery(tariff_options['post_code'], tariff_options['economy_7_meter'], tariff_options['pay_plan'])
+
+    pence_per_kWH = float(parserates(resp))
+    GBP_per_kWH = pence_per_kWH/100
+
+    return GBP_per_kWH
 
 def makequery(postcode: str, eco7: bool, payplan: str) -> dict:
     """Makes a query against the Bulb GraphQL database
@@ -157,64 +167,69 @@ def get_live_unMinable_data():
     """
     returns mining info of a unminable webpage from a address given in config.py
     """
-    unmineable_url = "https://unmineable.com/coins/DOGE/address/{}".format(doge_address)
-    response = requests.get(unmineable_url).text
+    try:
+        
+        unmineable_url = "https://unmineable.com/coins/DOGE/address/{}".format(doge_address)
+        response = requests.get(unmineable_url).text
 
-    from requests_html import HTMLSession
-    from bs4 import BeautifulSoup
+        from requests_html import HTMLSession
+        from bs4 import BeautifulSoup
 
-    # create an HTML Session object
-    session = HTMLSession()
+        # create an HTML Session object
+        session = HTMLSession()
 
-    # Use the object above to connect to needed webpage
-    resp = session.get(unmineable_url)
+        # Use the object above to connect to needed webpage
+        resp = session.get(unmineable_url)
 
-    # Run JavaScript code on webpage
-    resp.html.render(sleep=1, keep_page=True)
+        # Run JavaScript code on webpage
+        resp.html.render(sleep=2, keep_page=True,timeout=20)
 
-    # print(resp.html.html)
+        # print(resp.html.html)
 
-    soup = BeautifulSoup(resp.html.html, "lxml")
+        soup = BeautifulSoup(resp.html.html, "lxml")
 
-    to_be_paidout = (
-        str(soup.find_all(id="pending_mining_balance"))
-        .split('id="pending_mining_balance">')[1]
-        .split("<")[0]
-    )
-    mined_24 = str(soup.find_all(id="total_24h")).split('aria-label="')[1].split('"')[0]
-    total_paidout = (
-        str(soup.find_all(id="total_paid")).split('aria-label="')[1].split('"')[0]
-    )
-    last_payout_date = (
-        str(soup.find_all(id="last_payment_date"))
-        .split('class="number-important">')[1]
-        .replace("</b><span>", " ")
-        .split("</span>")[0]
-    )
-    payout_fee = (
-        str(soup.find_all(id="current-fee")).split('id="current-fee">')[1].split("<")[0]
-    )
-    amount_for_auto_payout = (
-        str(soup.find_all(id="threshold_amount"))
-        .split('id="threshold_amount">')[1]
-        .split("<")[0]
-    )
-    is_auto_payout_checked = str(soup.find_all(id="setting-auto_pay")).split('"')[1]
+        to_be_paidout = (
+            str(soup.find_all(id="pending_mining_balance"))
+            .split('id="pending_mining_balance">')[1]
+            .split("<")[0]
+        )
 
-    unMineable_data = {
-        "to_be_paidout": to_be_paidout,
-        "mined in last 24hrs": mined_24,
-        "total_paidout": total_paidout,
-        "last_payout_date": last_payout_date,
-        "payout_fee": payout_fee,
-        "is_auto_payout_checked": is_auto_payout_checked,
-        "amount_for_auto_payout": amount_for_auto_payout,
-    }
+        mined_24 = str(soup.find_all(id="total_24h")).split('aria-label="')[1].split('"')[0]
+        total_paidout = (
+            str(soup.find_all(id="total_paid")).split('aria-label="')[1].split('"')[0]
+        )
+        last_payout_date = (
+            str(soup.find_all(id="last_payment_date"))
+            .split('class="number-important">')[1]
+            .replace("</b><span>", " ")
+            .split("</span>")[0]
+        )
+        payout_fee = (
+            str(soup.find_all(id="current-fee")).split('id="current-fee">')[1].split("<")[0]
+        )
+        amount_for_auto_payout = (
+            str(soup.find_all(id="threshold_amount"))
+            .split('id="threshold_amount">')[1]
+            .split("<")[0]
+        )
+        is_auto_payout_checked = str(soup.find_all(id="setting-auto_pay")).split('"')[1]
 
-    return unMineable_data
+        session.close()
 
+        unMineable_data = {
+            "to_be_paidout": to_be_paidout,
+            "mined in last 24hrs": mined_24,
+            "total_paidout": total_paidout,
+            "last_payout_date": last_payout_date,
+            "payout_fee": payout_fee,
+            "is_auto_payout_checked": is_auto_payout_checked,
+            "amount_for_auto_payout": amount_for_auto_payout,
+        }
+
+        return unMineable_data
+
+    except:
+
+        get_live_unMinable_data()
 
 ############################################################
-
-resp = makequery("TW20 0EX", True, "monthly")
-print(parserates(resp))

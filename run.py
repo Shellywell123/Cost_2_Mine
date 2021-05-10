@@ -29,24 +29,34 @@ Cost_2_Mine.create_empty_csv(field_names)
 if ticker == 'DOGEGBP':
     for i in range(0,25): # will replace this with a timed interval so I get regular entries
 
+        #######################################################
         # calculating dict values for csv entry
+        #######################################################
+
+        # scrape data
+        unMinable_data         = Cost_2_Mine.get_live_unMinable_data() # do unmineable data 1st as has a loop til completion
+        HiveOS_data            = Cost_2_Mine.get_live_HiveOS_data()
+        
+        # index data
         date                   = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        price_per_kWh          = '0.1503'#to-be-scraped
-        power_consumption      = Cost_2_Mine.get_live_HiveOS_data()['stats']['power_draw']
+        price_per_kWh          = Cost_2_Mine.get_live_kWhs_from_Bulb()
+        power_consumption      = HiveOS_data['stats']['power_draw']
         ticker_value           = Cost_2_Mine.get_live_price(ticker)['price']
-        to_be_paidout          = Cost_2_Mine.get_live_unMinable_data()['to_be_paidout']
-        total_paidout          = Cost_2_Mine.get_live_unMinable_data()['total_paidout']
-        last_payout_date       = Cost_2_Mine.get_live_unMinable_data()['last_payout_date']
-        payout_fee             = Cost_2_Mine.get_live_unMinable_data()['payout_fee']
-        is_auto_payout_checked = Cost_2_Mine.get_live_unMinable_data()['is_auto_payout_checked']
-        hashrate               = float(Cost_2_Mine.get_live_HiveOS_data()['hashrates'][0]['hashrate']/1000) #MH/s
-        mined_in_last_24hrs    = Cost_2_Mine.get_live_unMinable_data()['mined in last 24hrs']
-        minimum_payout         = Cost_2_Mine.get_live_unMinable_data()['amount_for_auto_payout']
+        to_be_paidout          = unMinable_data['to_be_paidout']
+        total_paidout          = unMinable_data['total_paidout']
+        last_payout_date       = unMinable_data['last_payout_date']
+        payout_fee             = unMinable_data['payout_fee']
+        is_auto_payout_checked = unMinable_data['is_auto_payout_checked']
+        hashrate               = float(HiveOS_data['hashrates'][0]['hashrate']/1000) #MH/s
+        mined_in_last_24hrs    = unMinable_data['mined in last 24hrs']
+        minimum_payout         = unMinable_data['amount_for_auto_payout']
+
+        # calculations
         total_amount           = float(to_be_paidout) + float(total_paidout)
         total_value            = float(ticker_value)*float(total_amount)
         day_cost               = float(price_per_kWh)*float(power_consumption)*(24/1000)
         day_net                = float(mined_in_last_24hrs)*float(price_per_kWh)
-        day_gross              = (float(day_net) - float(day_cost)) * (1 - float(payout_fee[:-1]))
+        day_gross              = (float(day_net) - float(day_cost)) * (1 - (float(payout_fee[:-1])/100))
         
         # populate dict
         entry={
