@@ -132,7 +132,7 @@ def get_live_unMinable_data():
 
     soup = BeautifulSoup(resp.html.html, "lxml")
 
-    mined_til_payout       = str(soup.find_all(id='pending_mining_balance')).split('id="pending_mining_balance">')[1].split('<')[0]
+    to_be_paidout         = str(soup.find_all(id='pending_mining_balance')).split('id="pending_mining_balance">')[1].split('<')[0]
     mined_24               = str(soup.find_all(id='total_24h')).split('aria-label="')[1].split('"')[0]
     total_paidout          = str(soup.find_all(id='total_paid')).split('aria-label="')[1].split('"')[0]
     last_payout_date       = str(soup.find_all(id='last_payment_date')).split('class="number-important">')[1].replace('</b><span>',' ').split('</span>')[0]
@@ -141,12 +141,13 @@ def get_live_unMinable_data():
     is_auto_payout_checked = str(soup.find_all(id='setting-auto_pay')).split('"')[1]
 
     unMineable_data={
-        'mined_til_payout'       : mined_til_payout,
+        'to_be_paidout'          : to_be_paidout,
         'mined in last 24hrs'    : mined_24,
         'total_paidout'          : total_paidout,
         'last_payout_date'       : last_payout_date,
         'payout_fee'             : payout_fee,
-        'is_auto_payout_checked' : is_auto_payout_checked
+        'is_auto_payout_checked' : is_auto_payout_checked,
+        'amount_for_auto_payout' : amount_for_auto_payout
     }
 
     return unMineable_data
