@@ -14,7 +14,7 @@ def print_html(html_str):
 
 ############################################################
 
-def scrape_kWhs_from_Bulb(post_code):
+def scrape_kWhs_from_Bulb():
     """
     TODO - requires selenium
     scrapes the current price er kWH from the Bulb webpages tarrif, with selected options
@@ -28,6 +28,7 @@ def scrape_kWhs_from_Bulb(post_code):
 
     ff_opts = Options()
     ff_opts.add_argument("--headless")
+
     driver = webdriver.Firefox(options=ff_opts, executable_path="./geckodriver")
 
     # get page
@@ -35,14 +36,36 @@ def scrape_kWhs_from_Bulb(post_code):
 
     # input postcode into website
     element = driver.find_element_by_xpath("//input[@id='postcode']")
-    element.send_keys(post_code)
-    print_html(element.get_attribute('innerHTML'))
+    element.send_keys(tariff_options['post_code'])
+    #print_html(element.get_attribute('innerHTML'))
 
     # choose payplan from table
     pay_plan = driver.find_element_by_xpath("//div[@aria-labelledby='paymentMethod-label']")
-    print_html(pay_plan.get_attribute('innerHTML'))
-    pay_plan.select_by_visible_text('pp_text')
+    #print_html(pay_plan.get_attribute('innerHTML'))
 
+    if tariff_options['economy_7_meter']==True:
+        driver.find_element_by_xpath("//label[@for='economy7']").click()
+    
+    if tariff_options['pay_plan'] == 'direct_debit':
+        driver.find_element_by_xpath(".//*[contains(text(), 'By Direct Debit or other regular payment method')]").click()
+    
+    if tariff_options['pay_plan'] == 'pay_as_you_go':
+        driver.find_element_by_xpath(".//*[contains(text(), 'Top up prepayment meters in store (Pay As You Go)')]").click()
+    
+    if tariff_options['pay_plan'] == 'smart_pay_as_you_go':
+        driver.find_element_by_xpath(".//*[contains(text(), 'Top up smart meters online or with a smart card in store (Smart Pay As You Go)')]").click()\
+
+    # submit options
+    driver.find_element_by_xpath(".//*[contains(text(), 'Look up tariff')]").click()
+
+    import time
+    time.sleep(10)
+
+    info = driver.find_element_by_xpath(".//*[contains(text(), 'Electricity Unit rate')]")
+    print_html(info.get_attribute('innerHTML'))
+
+
+    
 ############################################################
 
 def create_empty_csv(field_names):
@@ -132,7 +155,7 @@ def get_live_unMinable_data():
 
     soup = BeautifulSoup(resp.html.html, "lxml")
 
-    to_be_paidout         = str(soup.find_all(id='pending_mining_balance')).split('id="pending_mining_balance">')[1].split('<')[0]
+    to_be_paidout          = str(soup.find_all(id='pending_mining_balance')).split('id="pending_mining_balance">')[1].split('<')[0]
     mined_24               = str(soup.find_all(id='total_24h')).split('aria-label="')[1].split('"')[0]
     total_paidout          = str(soup.find_all(id='total_paid')).split('aria-label="')[1].split('"')[0]
     last_payout_date       = str(soup.find_all(id='last_payment_date')).split('class="number-important">')[1].replace('</b><span>',' ').split('</span>')[0]
@@ -153,3 +176,5 @@ def get_live_unMinable_data():
     return unMineable_data
 
 ############################################################
+
+scrape_kWhs_from_Bulb()
