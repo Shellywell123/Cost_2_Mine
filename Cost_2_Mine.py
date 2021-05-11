@@ -86,14 +86,16 @@ def parserates(jsonresp: dict) -> float:
 ############################################################
 
 
-def create_empty_csv(field_names):
+def create_empty_csv():
     """
     will create an empty csv with headers from inputted list
     """
     with open(name_of_csv, "w") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
         writer.writeheader()
-        print(field_names)
+    
+    print('created {}'.format(name_of_csv))
+    print(field_names)
 
 
 ############################################################
@@ -106,17 +108,21 @@ def append_to_csv(entry):
     """
     field_names = list(entry.keys())
 
-    try:
-        with open(name_of_csv, "a") as f_object:
-            dictwriter_object = csv.DictWriter(f_object, fieldnames=field_names)
-            dictwriter_object.writerow(entry)
-            print(list(entry.values()))
-            f_object.close()
+    import os
+    if os.path.exists(name_of_csv):
+        try: # incase file cant be written to as its beining viewwed
+            with open(name_of_csv, "a") as f_object:
+                dictwriter_object = csv.DictWriter(f_object, fieldnames=field_names)
+                dictwriter_object.writerow(entry)
+                print(list(entry.values()))
+                f_object.close()
+        except:
+            append_to_csv(entry)
 
-    except IOError:
-        print("File not accessible/found")
-        create_empty_csv(field_names)
-        append_to_csv()
+    else:
+        print("{} not found".format(name_of_csv))
+        create_empty_csv()
+        append_to_csv(entry)
 
 
 ###########################################################
@@ -157,6 +163,8 @@ def get_live_HiveOS_data():
 
     farm_data = farm_repsonse["data"][0]
 
+    assert type(farm_data) == dict
+
     return farm_data
 
 
@@ -167,69 +175,76 @@ def get_live_unMinable_data():
     """
     returns mining info of a unminable webpage from a address given in config.py
     """
-    try:
         
-        unmineable_url = "https://unmineable.com/coins/DOGE/address/{}".format(doge_address)
-        response = requests.get(unmineable_url).text
+    unmineable_url = "https://unmineable.com/coins/DOGE/address/{}".format(doge_address)
+   # resp= requests.get(unmineable_url,timeout=2.5).text
 
-        from requests_html import HTMLSession
-        from bs4 import BeautifulSoup
+    from requests_html import HTMLSession
+    from bs4 import BeautifulSoup
 
-        # create an HTML Session object
-        session = HTMLSession()
+    # create an HTML Session object
+    session = HTMLSession()
 
-        # Use the object above to connect to needed webpage
-        resp = session.get(unmineable_url)
+    # Use the object above to connect to needed webpage
+    resp = session.get(unmineable_url)
 
-        # Run JavaScript code on webpage
-        resp.html.render(sleep=2, keep_page=True,timeout=20)
 
-        # print(resp.html.html)
+    # Run JavaScript code on webpage
+    resp.html.render(sleep=2, keep_page=True,timeout=0)
 
-        soup = BeautifulSoup(resp.html.html, "lxml")
+    # a =resp.html.find('#total_paid')[0]
+    # print(a)
+    # print(a.attrs['aria-label'])
+    # # print(resp.html.html)
 
-        to_be_paidout = (
-            str(soup.find_all(id="pending_mining_balance"))
-            .split('id="pending_mining_balance">')[1]
-            .split("<")[0]
-        )
+    soup = BeautifulSoup(resp.html.html, "lxml")
+    print(soup.find_all(id="pending_mining_balance"))
 
-        mined_24 = str(soup.find_all(id="total_24h")).split('aria-label="')[1].split('"')[0]
-        total_paidout = (
-            str(soup.find_all(id="total_paid")).split('aria-label="')[1].split('"')[0]
-        )
-        last_payout_date = (
-            str(soup.find_all(id="last_payment_date"))
-            .split('class="number-important">')[1]
-            .replace("</b><span>", " ")
-            .split("</span>")[0]
-        )
-        payout_fee = (
-            str(soup.find_all(id="current-fee")).split('id="current-fee">')[1].split("<")[0]
-        )
-        amount_for_auto_payout = (
-            str(soup.find_all(id="threshold_amount"))
-            .split('id="threshold_amount">')[1]
-            .split("<")[0]
-        )
-        is_auto_payout_checked = str(soup.find_all(id="setting-auto_pay")).split('"')[1]
+    to_be_paidout = (
+        str(soup.find_all(id="pending_mining_balance")).split('id="pending_mining_balance">')[1].split("<")[0]
+    )
 
-        session.close()
+    mined_24 = str(soup.find_all(id="total_24h")).split('aria-label="')[1].split('"')[0]
+    total_paidout = (
+        str(soup.find_all(id="total_paid")).split('aria-label="')[1].split('"')[0]
+    )
+    last_payout_date = (
+        str(soup.find_all(id="last_payment_date")).split('class="number-important">')[1].replace("</b><span>", " ").split("</span>")[0]
+    )
+    payout_fee = (
+        str(soup.find_all(id="current-fee")).split('id="current-fee">')[1].split("<")[0]
+    )
+    amount_for_auto_payout = (
+        str(soup.find_all(id="threshold_amount")).split('id="threshold_amount">')[1].split("<")[0]
+    )
+    is_auto_payout_checked = str(soup.find_all(id="setting-auto_pay")).split('"')[1]
 
-        unMineable_data = {
-            "to_be_paidout": to_be_paidout,
-            "mined in last 24hrs": mined_24,
-            "total_paidout": total_paidout,
-            "last_payout_date": last_payout_date,
-            "payout_fee": payout_fee,
-            "is_auto_payout_checked": is_auto_payout_checked,
-            "amount_for_auto_payout": amount_for_auto_payout,
-        }
+    session.close()
 
-        return unMineable_data
+    unMineable_data = {
+        "to_be_paidout": to_be_paidout,
+        "mined in last 24hrs": mined_24,
+        "total_paidout": total_paidout,
+        "last_payout_date": last_payout_date,
+        "payout_fee": payout_fee,
+        "is_auto_payout_checked": is_auto_payout_checked,
+        "amount_for_auto_payout": amount_for_auto_payout,
+    }
 
-    except:
+ #   print(unMineable_data)
+    assert type(unMineable_data) == dict
+    return unMineable_data
 
-        get_live_unMinable_data()
 
 ############################################################
+# def get_live_unMinable_data_new():
+#     """
+#     returns mining info of a unminable webpage from a address given in config.py
+#     """
+#     #try:
+        
+#     unmineable_url = "https://unmineable.com/coins/DOGE/address/{}".format(doge_address)
+#     response = requests.get(unmineable_url).text
+
+# for n in range(0,100):
+#     a = get_live_unMinable_data()
