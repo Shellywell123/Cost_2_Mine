@@ -176,75 +176,14 @@ def get_live_unMinable_data():
     returns mining info of a unminable webpage from a address given in config.py
     """
         
-    unmineable_url = "https://unmineable.com/coins/DOGE/address/{}".format(doge_address)
-   # resp= requests.get(unmineable_url,timeout=2.5).text
-
-    from requests_html import HTMLSession
-    from bs4 import BeautifulSoup
-
-    # create an HTML Session object
-    session = HTMLSession()
-
-    # Use the object above to connect to needed webpage
-    resp = session.get(unmineable_url)
-
-
-    # Run JavaScript code on webpage
-    resp.html.render(sleep=2, keep_page=True,timeout=0)
-
-    # a =resp.html.find('#total_paid')[0]
-    # print(a)
-    # print(a.attrs['aria-label'])
-    # # print(resp.html.html)
-
-    soup = BeautifulSoup(resp.html.html, "lxml")
-    print(soup.find_all(id="pending_mining_balance"))
-
-    to_be_paidout = (
-        str(soup.find_all(id="pending_mining_balance")).split('id="pending_mining_balance">')[1].split("<")[0]
-    )
-
-    mined_24 = str(soup.find_all(id="total_24h")).split('aria-label="')[1].split('"')[0]
-    total_paidout = (
-        str(soup.find_all(id="total_paid")).split('aria-label="')[1].split('"')[0]
-    )
-    last_payout_date = (
-        str(soup.find_all(id="last_payment_date")).split('class="number-important">')[1].replace("</b><span>", " ").split("</span>")[0]
-    )
-    payout_fee = (
-        str(soup.find_all(id="current-fee")).split('id="current-fee">')[1].split("<")[0]
-    )
-    amount_for_auto_payout = (
-        str(soup.find_all(id="threshold_amount")).split('id="threshold_amount">')[1].split("<")[0]
-    )
-    is_auto_payout_checked = str(soup.find_all(id="setting-auto_pay")).split('"')[1]
-
-    session.close()
-
-    unMineable_data = {
-        "to_be_paidout": to_be_paidout,
-        "mined in last 24hrs": mined_24,
-        "total_paidout": total_paidout,
-        "last_payout_date": last_payout_date,
-        "payout_fee": payout_fee,
-        "is_auto_payout_checked": is_auto_payout_checked,
-        "amount_for_auto_payout": amount_for_auto_payout,
-    }
-
- #   print(unMineable_data)
-    assert type(unMineable_data) == dict
-    return unMineable_data
+    unmineable_api_url = "https://api.unminable.com/v3/stats/{}?tz=0&coin={}".format(doge_address,ticker_buy)
+    response = (requests.get(unmineable_api_url).json())['data']
+    return response
 
 
 ############################################################
-# def get_live_unMinable_data_new():
-#     """
-#     returns mining info of a unminable webpage from a address given in config.py
-#     """
-#     #try:
-        
-#     unmineable_url = "https://unmineable.com/coins/DOGE/address/{}".format(doge_address)
-#     response = requests.get(unmineable_url).text
 
-# for n in range(0,100):
-#     a = get_live_unMinable_data()
+
+
+
+

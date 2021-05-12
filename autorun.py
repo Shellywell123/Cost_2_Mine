@@ -52,21 +52,21 @@ def auto_log():
     price_per_kWh          = Cost_2_Mine.get_live_kWhs_from_Bulb()
     power_consumption      = HiveOS_data['stats']['power_draw']
     ticker_value           = Cost_2_Mine.get_live_price(ticker)['price']
-    to_be_paidout          = unMinable_data['to_be_paidout']
-    total_paidout          = unMinable_data['total_paidout']
-    last_payout_date       = unMinable_data['last_payout_date']
-    payout_fee             = unMinable_data['payout_fee']
-    is_auto_payout_checked = unMinable_data['is_auto_payout_checked']
+    to_be_paidout          = unMinable_data['pending_mining_balance']
+    total_paidout          = unMinable_data['total_paid']
+    last_payout_date       = unMinable_data['last_payment_date']
+    payout_fee             = 0.75 # couldnt scrape this as is a reduced fee
+    is_auto_payout_checked = unMinable_data['auto_pay']
     hashrate               = float(HiveOS_data['hashrates'][0]['hashrate']/1000) #MH/s
-    mined_in_last_24hrs    = unMinable_data['mined in last 24hrs']
-    minimum_payout         = unMinable_data['amount_for_auto_payout']
+    mined_in_last_24hrs    = unMinable_data['total_24h']
+    minimum_payout         = unMinable_data['payment_threshold']
 
     # calculations
     total_amount           = float(to_be_paidout) + float(total_paidout)
     total_value            = float(ticker_value)*float(total_amount)
     day_cost               = float(price_per_kWh)*float(power_consumption)*(24/1000)
     day_net                = float(mined_in_last_24hrs)*float(price_per_kWh)
-    day_gross              = (float(day_net) - float(day_cost)) * (1 - (float(payout_fee[:-1])/100))
+    day_gross              = (float(day_net) - float(day_cost)) * (1 - (float(payout_fee)/100))
     
     # populate dict
     entry={
