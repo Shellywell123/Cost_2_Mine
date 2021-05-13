@@ -4,8 +4,6 @@ from g_sheets.auth import spreadsheet_service
 from g_sheets.auth import drive_service
 from config import gmail_address
 
-print(gmail_address)
-
 def create(sheet_title):
     spreadsheet_details = {
     'properties': {
