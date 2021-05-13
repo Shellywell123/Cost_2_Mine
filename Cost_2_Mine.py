@@ -5,6 +5,20 @@ import statistics
 from config import *
 import _bulbql as bulbql
 
+
+############################################################
+
+def check_internet_connection():
+    """
+    """
+    import urllib.request
+
+    try:
+        urllib.request.urlopen('http://google.com') #Python 3.x
+    except:
+        return 'no internet'
+
+
 ############################################################
 
 
@@ -19,6 +33,7 @@ def print_html(html_str):
 
 ############################################################
 
+
 def get_live_kWhs_from_Bulb():
     """
     scrapes the current GBP per kWH from the Bulb webpages tarrif, with selected options
@@ -29,6 +44,10 @@ def get_live_kWhs_from_Bulb():
     GBP_per_kWH = pence_per_kWH/100
 
     return GBP_per_kWH
+
+
+############################################################
+
 
 def makequery(postcode: str, eco7: bool, payplan: str) -> dict:
     """Makes a query against the Bulb GraphQL database
@@ -68,6 +87,9 @@ def makequery(postcode: str, eco7: bool, payplan: str) -> dict:
         raise Exception("Bad Request.")
 
 
+############################################################
+
+
 def parserates(jsonresp: dict) -> float:
     """
     Extracts kWatt hour rates from json dictionary
@@ -86,7 +108,7 @@ def parserates(jsonresp: dict) -> float:
 ############################################################
 
 
-def create_empty_csv():
+def create_empty_csv(name_of_csv):
     """
     will create an empty csv with headers from inputted list
     """
@@ -101,7 +123,7 @@ def create_empty_csv():
 ############################################################
 
 
-def append_to_csv(entry):
+def append_to_csv(name_of_csv,entry):
     """
     appends the data entry to a csv
     if it cant find csv it creates one
@@ -121,14 +143,14 @@ def append_to_csv(entry):
 
     else:
         print("{} not found".format(name_of_csv))
-        create_empty_csv()
-        append_to_csv(entry)
+        create_empty_csv(name_of_csv)
+        append_to_csv(name_of_csv,entry)
 
 
 ###########################################################
 
 
-def get_live_price(ticker):
+def get_live_binance_spot_price(ticker):
     """
     returns live ticker price from binance api in form of a dictionary
     with keys [symbol,price]
