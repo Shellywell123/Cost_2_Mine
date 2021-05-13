@@ -130,5 +130,8 @@ dmypy.json
 
 #gecko driver as is machine dependent
 gecko*
-config*
+
+# private files
+config.py
+credentials.json
 *.csv

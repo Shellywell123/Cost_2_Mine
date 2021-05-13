@@ -108,7 +108,7 @@ def parserates(jsonresp: dict) -> float:
 ############################################################
 
 
-def create_empty_csv(name_of_csv):
+def create_new_csv(name_of_csv):
     """
     will create an empty csv with headers from inputted list
     """
@@ -123,7 +123,7 @@ def create_empty_csv(name_of_csv):
 ############################################################
 
 
-def append_to_csv(name_of_csv,entry):
+def create_append_to_csv(name_of_csv,entry):
     """
     appends the data entry to a csv
     if it cant find csv it creates one
@@ -143,9 +143,54 @@ def append_to_csv(name_of_csv,entry):
 
     else:
         print("{} not found".format(name_of_csv))
-        create_empty_csv(name_of_csv)
+        create_new_csv(name_of_csv)
         append_to_csv(name_of_csv,entry)
 
+
+###########################################################
+
+def create_append_to_g_sheets(spreadsheetname,entry):
+    """
+    """
+    import gspread
+    from oauth2client.service_account import ServiceAccountCredentials
+
+    #Define Google Sheets scope, creds and sheet
+    scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+    client = gspread.authorize(creds)
+    
+    header_list = list(entry.keys())
+    alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+
+    # if sheet exists append to it
+    try:
+        
+        sheet = client.open(spreadsheetname)
+        sheet_instance = sheet.get_worksheet(0)
+
+        next_row_number = len(sheet_instance.get_all_records())+2
+        for header in header_list:
+            header_letter_index = alphabet[header_list.index(header)]
+            sheet_instance.update('{}{}'.format(header_letter_index,next_row_number), '{}'.format(entry[header]))
+        print(list(entry.values()))
+        
+    # if sheet doesnt exist make it and add headers
+    except gspread.exceptions.SpreadsheetNotFound:
+        print('{} does not exit, creating sheet ...'.format(spreadsheetname))
+        from g_sheets.sheets import create
+        create(spreadsheetname)
+
+        sheet = client.open(spreadsheetname)
+        sheet_instance = sheet.get_worksheet(0)
+
+        for header in header_list:
+            header_letter_index = alphabet[header_list.index(header)]
+            sheet_instance.update('{}1'.format(header_letter_index), '{}'.format(header))
+
+        print(header_list)
+        # once made begin appending data
+        create_append_to_g_sheets(spreadsheetname,entry)
 
 ###########################################################
 

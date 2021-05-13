@@ -114,7 +114,7 @@ def auto_log_DOGE_preset():
         '{}/day Gross'.format(ticker_sell)     : day_gross,
         }
 
-    Cost_2_Mine.append_to_csv(name_of_csv,entry)
+    Cost_2_Mine.create_append_to_csv(name_of_csv,entry)
 
     print('waiting {} minutes til next auto entry'.format(entry_every_N_mins))
   

@@ -4,6 +4,10 @@
 ######################################
 # input the varables for your setup and then rename this file to config.py
 
+
+# g sheets options
+gmail_address = ""
+
 # file name options
 loc_of_csv = "/some/path/to/where/you/want/the/csvs/to/save"
 
