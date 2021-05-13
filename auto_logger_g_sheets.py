@@ -39,7 +39,7 @@ def auto_log_DOGE_preset():
     #file name
     from datetime import datetime
     date = datetime.now().strftime("%d-%m-%Y")
-    name_of_g_sheet = "{}.csv".format("Cost_2_Mine_log "+date)
+    name_of_g_sheet = "{}.csv".format("Cost_2_Mine_log _ "+date)
 
     # test connection
     if Cost_2_Mine.check_internet_connection() == 'no internet':
