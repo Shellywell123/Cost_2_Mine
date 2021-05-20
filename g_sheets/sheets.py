@@ -33,7 +33,8 @@ def get_sheet_data(sheet_name):
     from g_sheets.auth import credentials
     import gspread
     client = gspread.authorize(credentials)
-    sheet = client.open(sheet_name).sheet1
+    g_spreadsheet = client.open(sheet_name)
+    sheet = g_spreadsheet.sheet1
     data = sheet.get_all_records()
 
     return data
