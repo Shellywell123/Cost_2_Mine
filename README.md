@@ -1,4 +1,4 @@
-# Cost_2_Mine
+# Cost_2_Mine (Mine-Your-Own-Business)
 Python project that generates a live balance sheet for mining crypto via HiveOS, by scraping live ticker prices and electricity tariffs.
 
  - `N.B. I am writing this for my specific setup, Bulb energy supplier and HiveOS mining` 
