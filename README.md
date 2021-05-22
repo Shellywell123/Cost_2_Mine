@@ -4,7 +4,7 @@ Python project that generates a live balance sheet for mining crypto via HiveOS,
  - `N.B. I am writing this for my specific setup, Bulb energy supplier and HiveOS mining` 
  - I plan to make a function/preset per HiveOS flightsheet
 
-## Usage 
+## Setup:
  - Open `example-config.py` and change the variables for your setup.
  - Then rename `example-config.py` to `config.py`.
  - You will need an access token to access your live HiveOS data, this is easily done by creating an access token in the settings page of HiveOS dashboard. 
@@ -13,14 +13,38 @@ Python project that generates a live balance sheet for mining crypto via HiveOS,
  - if left runnning the script will make a new csv every time the date changes
  - script can be used to write to local csv files or google sheets (`g-sheets` scripts where found from [here](https://blog.coupler.io/python-to-google-sheets/))
 
- Then execute the program:
+## Usage:
+### To generate csv log files:
 
 ```py
-python3 auto_logger.py
+python3 auto_logger_g_sheets.py
+#or
+python3 auto_logger_local.py
 ```
+
 ```bash
 #####################################################
 #            Cost_2_Mine Initiating                 #
 #####################################################
 ```
 [program will then print out each entry of the csv as it collects the live data]
+
+### To summarise log files:
+ - curently only written for google-sheets
+ - open and edit `tally.py` for you own paramaters
+
+```py
+python3 tally.py
+```
+[program will then average and total up values in each sheet, DOGE example below]
+
+```bash
+
+############################################################################
+#         Cost_2_Mine Summary for Period 15/05/2021-20/05/2021             #
+############################################################################
+
+ - total mined is ... DOGE
+ - total profit is £...
+ - total electricty bill is £... or ... DOGE coin
+ ```
