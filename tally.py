@@ -91,7 +91,7 @@ def get_sheet_names_between(start_date,final_date):
 
 ##########################################
 
-def get_mean_bill_per_day(sheet_name):
+def get_mean_bill_per_day(fiat_name,sheet_name):
     """
     function to extract the average price per day as the logger calculates it on the fly with every entry
     """
@@ -104,7 +104,7 @@ def get_mean_bill_per_day(sheet_name):
     ppd = []
     for entry in sheet_data:
         try:
-            ppd.append(float(entry['GBP/day Electricity']))
+            ppd.append(float(entry['{}/day Electricity'.format(fiat_name)]))
         except:
             pass
 
@@ -116,7 +116,7 @@ def get_mean_bill_per_day(sheet_name):
 
 ##########################################
 
-def get_mean_prof_on_day(sheet_name):
+def get_mean_prof_on_day(fiat_name,sheet_name):
     """
     function to extract the profit per day as the logger calculates it on the fly with every entry
     """
@@ -129,7 +129,7 @@ def get_mean_prof_on_day(sheet_name):
     ppd = []
     for entry in sheet_data:
         try:
-            ppd.append(float(entry['GBP/day Gross']))
+            ppd.append(float(entry['{}/day Gross'.format(fiat_name)]))
         except:
             pass
 
@@ -141,7 +141,7 @@ def get_mean_prof_on_day(sheet_name):
 
 ##########################################
 
-def get_mean_coin_amount_on_day(sheet_name):
+def get_mean_coin_amount_on_day(coin_name,sheet_name):
     """
     function to extract the profit per day as the logger calculates it on the fly with every entry
     """
@@ -154,7 +154,7 @@ def get_mean_coin_amount_on_day(sheet_name):
     ppd = []
     for entry in sheet_data:
         try:
-            ppd.append(float(entry['Total DOGE']))
+            ppd.append(float(entry['Total {}'.format(coin_name)]))
         except:
             pass
 
@@ -164,66 +164,74 @@ def get_mean_coin_amount_on_day(sheet_name):
     # return mean
     return day_mean
 
+
 ##########################################
-# how I envisage the code being used
-##########################################
 
 
+def tally_g_sheets(start_date,final_date,coin_name,fiat_name):
+    """
+    summarise expenses of g_sheets between two dates
+    """
 
-# download/ open google sheets
-
-start_date = '15/05/2021'
-final_date = '20/05/2021'
-
-print("""
+    print("""
 ############################################################################
 #         Cost_2_Mine Summary for Period {}-{}             #
 ############################################################################
 """.format(start_date,final_date))
 
-sheet_names = get_sheet_names_between(start_date,final_date)
+    sheet_names = get_sheet_names_between(start_date,final_date)
 
-######################
-# get profit summary
-######################
+    ######################
+    # get profit summary
+    ######################
 
-start_coin = get_mean_coin_amount_on_day(sheet_names[0])
-end_coin   = get_mean_coin_amount_on_day(sheet_names[-1])
+    start_coin = get_mean_coin_amount_on_day(coin_name,sheet_names[0])
+    end_coin   = get_mean_coin_amount_on_day(coin_name,sheet_names[-1])
 
-mined_coin = end_coin-start_coin
+    mined_coin = end_coin-start_coin
 
-print(' - total mined is {} DOGE'.format(mined_coin))
-
-
-
-######################
-# get bill summary
-######################
+    print(' - total mined is {} {}'.format(mined_coin,coin_name))
 
 
-bill_gbp_total = 0
-profit_gbp_total = 0
-for sheet_name in sheet_names:
-
-    # scrape sheet data and average price of electricy per day for that day
-    bill_avg = get_mean_bill_per_day(sheet_name)
-
-    #print(sheet_name,bill_avg)
-
-    # cummaltively make a sum 
-    bill_gbp_total += bill_avg
+    ######################
+    # get bill summary
+    ######################
 
 
-from Cost_2_Mine import get_live_binance_spot_price
-coin_price = (get_live_binance_spot_price('DOGEGBP'))['price']
-bill_coin_total = bill_gbp_total/float(coin_price)
+    bill_gbp_total = 0
+    profit_gbp_total = 0
+    for sheet_name in sheet_names:
+
+        # scrape sheet data and average price of electricy per day for that day
+        bill_avg = get_mean_bill_per_day(fiat_name,sheet_name)
+
+        #print(sheet_name,bill_avg)
+
+        # cummaltively make a sum 
+        bill_gbp_total += bill_avg
 
 
-profit_gbp_total = float(mined_coin)*float(coin_price) - bill_gbp_total
+    from Cost_2_Mine import get_live_binance_spot_price
+    coin_price = (get_live_binance_spot_price(coin_name+fiat_name))['price']
+    bill_coin_total = bill_gbp_total/float(coin_price)
 
-print(' - total profit is £{}'.format(profit_gbp_total))
+
+    profit_gbp_total = float(mined_coin)*float(coin_price) - bill_gbp_total
+
+    print(' - total profit is {} {}'.format(profit_gbp_total,fiat_name))
 
 
-#of you get nan as a value it may be due to one of your sheets not having headers
-print(' - total electricty bill is £{} or {} DOGE coin'.format(bill_gbp_total,bill_coin_total))
+    #of you get nan as a value it may be due to one of your sheets not having headers
+    print(' - total electricty bill is {} {} or {} {} coin'.format(bill_gbp_total,fiat_name,bill_coin_total,coin_name))
 
+##########################################
+# how I envisage the code being used
+##########################################
+
+start_date = '15/05/2021'
+final_date = '20/05/2021'
+
+coin_name = 'DOGE'
+fiat_name = 'GBP'
+
+tally_g_sheets(start_date,final_date,coin_name,fiat_name)
