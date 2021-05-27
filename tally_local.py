@@ -116,10 +116,6 @@ def get_mean_prof_on_day(fiat_name,sheet_name):
     function to extract the profit per day as the logger calculates it on the fly with every entry
     """
 
-    from g_sheets.sheets import get_sheet_data
-    sheet_data = get_sheet_data(sheet_name)
-
-
     # first index price per day column in data
     df = pandas.read_csv(loc_of_csv + sheet_name)
     ppd =(df['{}/day Gross'.format(fiat_name)])
@@ -136,10 +132,6 @@ def get_mean_coin_amount_on_day(coin_name,sheet_name):
     """
     function to extract the profit per day as the logger calculates it on the fly with every entry
     """
-
-    from g_sheets.sheets import get_sheet_data
-    sheet_data = get_sheet_data(sheet_name)
-
 
     # first index price per day column in data
     df = pandas.read_csv(loc_of_csv + sheet_name)

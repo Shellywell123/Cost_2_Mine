@@ -228,6 +228,8 @@ def get_live_HiveOS_data():
         HiveOS_farm_api_url, data="", headers={"Authorization": auth_token}
     ).json()
 
+
+
     farm_data = farm_repsonse["data"][0]
 
     assert type(farm_data) == dict
@@ -254,3 +256,4 @@ def get_live_unMinable_data():
 
 
 
+get_live_HiveOS_data()

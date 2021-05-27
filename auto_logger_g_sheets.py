@@ -15,6 +15,7 @@ def choose_preset_by_ticker(ticker):
     """
 
     if ticker == 'DOGEGBP':
+        print('DOGE prest selected')
         auto_log_DOGE_preset()
 
     else:
@@ -32,6 +33,13 @@ def auto_log_DOGE_preset():
     minute = 60
     threading.Timer(entry_every_N_mins*minute, auto_log_DOGE_preset).start()
 
+    def retry():
+        """
+        small function to wait a few seconds and retry
+        """
+        time.sleep(3)
+        auto_log_DOGE_preset()
+
     #######################################################
     # calculating dict values for csv entry
     #######################################################
@@ -44,8 +52,7 @@ def auto_log_DOGE_preset():
     # test connection
     if Cost_2_Mine.check_internet_connection() == 'no internet':
         print('not connected to the internet ... retrying')
-        time.sleep(3)
-        auto_log_DOGE_preset()
+        retry()
 
     # scrape data
     try:
