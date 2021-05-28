@@ -28,6 +28,7 @@ python3 auto_logger_local.py
 #####################################################
 ```
 [program will then print out each entry of the csv as it collects the live data]
+ - N.B If you are using `UnMineable.com` to view hasrates etc, the generated `net profit per day` is based apon the 'Last 24hr Reward' on the 'unmineable dash', i.e dont worry if your net profit is negative for the first 24 hours of starting the rig.
 
 ### To summarise log files:
  - curently only written for google-sheets
