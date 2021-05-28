@@ -164,10 +164,13 @@ def tally_g_sheets(start_date,final_date,coin_name,fiat_name):
     # get profit summary
     ######################
 
-    start_coin = get_mean_coin_amount_on_day(coin_name,sheet_names[0])
-    end_coin   = get_mean_coin_amount_on_day(coin_name,sheet_names[-1])
 
-    mined_coin = end_coin-start_coin
+    if len(sheet_names) == 1:
+        mined_coin = get_mean_coin_amount_on_day(coin_name,sheet_names[0])
+    else:
+        start_coin = get_mean_coin_amount_on_day(coin_name,sheet_names[0])
+        end_coin   = get_mean_coin_amount_on_day(coin_name,sheet_names[-1])
+        mined_coin = end_coin-start_coin
 
     print(' - total mined is {} {}'.format(mined_coin,coin_name))
 
